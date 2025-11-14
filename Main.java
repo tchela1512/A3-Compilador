@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
 import Analisar.*;
+import Semantico.*;
 
 public class Main {
     public static void main(String[] args) {
@@ -33,12 +34,12 @@ public class Main {
         }
 
 
-        //String code = "if (x > 10) { y = x + 5; }";
-        //Lexer lexer = new Lexer(sc);
-        //List<Token> tokens = lexer.tokenize();
+        String code = "if (x > 10) { y = x + 5; }";
+        Lexer lexer = new Lexer(sc);
+        List<Token> tokens = lexer.tokenize();
 
-        //for (Token token : tokens) {
-        //    System.out.println(token);
-        //}
+        for (Token token : tokens) {
+            System.out.println(token);
+        }
     }
 }

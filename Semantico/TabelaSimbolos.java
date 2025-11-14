@@ -18,4 +18,5 @@ public class TabelaSimbolos {
         }
         return tabela.get(nome);
     }
+
 }
