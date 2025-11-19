@@ -1,4 +1,4 @@
-package Analisar;
+package Lexico;
 public enum TokenType {
     KEYWORD, IDENTIFIER, LITERAL, OPERATOR, PUNCTUATION, WHITESPACE, COMMENT, UNKNOWN
 }
