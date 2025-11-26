@@ -12,24 +12,39 @@ public class VerificadorEstruturas {
         this.currentIndex = 0;
     }
 
-    // função para verificar a estrutura de
     public boolean verificarEstrutura() {
         if (tokens == null || tokens.isEmpty()) {
             return false;
         }
-
         currentIndex = 0;
-
-        // Tenta verificar diferentes tipos de estruturas
-        if (verificarDeclaracaoVariavel()) {
+        if (verificarInt()) {
             return true;
-        } else {
-            return false;
         }
+        if (verificarString()) {
+            return true;
+        }
+        if (verificarBoolean()) {
+            return true;
+        }
+        if (verificarIf()) {
+            return true;
+        }
+        if (verificarFor()) {
+            return true;
+        }
+        if (verificarElse()) {
+            return true;
+        }
+        if (verificaPontuacao()) {
+            return true;
+        }
+        if (verificaConta()) {
+            return true;
+        }
+        return false;
 
     }
 
-    // verifica se o token é o tipo esperado e compara ao token lexer
     private boolean verificarTokenEspecifico(TokenType type, String value) {
         if (currentIndex >= tokens.size()) {
             return false;
@@ -56,7 +71,6 @@ public class VerificadorEstruturas {
         return false;
     }
 
-    // verifica o tokne para analisar
     private Token peekToken() {
         if (currentIndex >= tokens.size()) {
             return null;
@@ -72,35 +86,232 @@ public class VerificadorEstruturas {
         this.currentIndex = currentIndex;
     }
 
-    // verifica a eclaração de uma variavel
-
-    public boolean verificarDeclaracaoVariavel() {
+    public boolean verificarInt() {
         int savedIndex = currentIndex;
 
-        if(!verificarToken(TokenType.KEYWORD)){
+        if (!verificarTokenEspecifico(TokenType.KEYWORD, "int")) {
             return false;
         }
-        if(!verificarToken(TokenType.IDENTIFIER)){
+        if (!verificarToken(TokenType.IDENTIFIER)) {
             return false;
         }
-        if(verificarTokenEspecifico(TokenType.OPERATOR, "=")) {
+        if (verificarTokenEspecifico(TokenType.OPERATOR, "=")) {
             verificaExpressao();
         }
-        if(verificarTokenEspecifico(TokenType.PUNCTUATION, ";")){
+        if (verificarTokenEspecifico(TokenType.PUNCTUATION, ";")) {
             return true;
         }
         currentIndex = savedIndex;
         return false;
-        
+    }
+
+    public boolean verificarString() {
+        int savedIndex = currentIndex;
+
+        if (!verificarTokenEspecifico(TokenType.KEYWORD, "String")) {
+            return false;
+        }
+        if (!verificarToken(TokenType.IDENTIFIER)) {
+            return false;
+        }
+        if (verificarTokenEspecifico(TokenType.OPERATOR, "=")) {
+            verificaExpressao();
+        }
+        if (verificarTokenEspecifico(TokenType.PUNCTUATION, ";")) {
+            return true;
+        }
+        currentIndex = savedIndex;
+        return false;
+
+    }
+
+    public boolean verificarBoolean() {
+        int savedIndex = currentIndex;
+
+        if (!verificarTokenEspecifico(TokenType.KEYWORD, "boolean")) {
+            return false;
+        }
+        if (!verificarToken(TokenType.IDENTIFIER)) {
+            return false;
+        }
+        if (!verificarTokenEspecifico(TokenType.OPERATOR, "=")) {
+            return false;
+        }
+        if (verificarTokenEspecifico(TokenType.IDENTIFIER, "false")
+                || verificarTokenEspecifico(TokenType.IDENTIFIER, "true")) {
+            return true;
+        }
+        if (verificarTokenEspecifico(TokenType.PUNCTUATION, ";")) {
+            return true;
+        }
+        currentIndex = savedIndex;
+        return false;
+
+    }
+
+    public boolean verificarIf() {
+        int savedIndex = currentIndex;
+
+        if (verificarTokenEspecifico(TokenType.KEYWORD, "if") &&
+                verificarTokenEspecifico(TokenType.PUNCTUATION, "(") &&
+                verificarToken(TokenType.IDENTIFIER) &&
+                verificarToken(TokenType.OPERATOR) &&
+                verificarToken(TokenType.IDENTIFIER) &&
+                verificarTokenEspecifico(TokenType.PUNCTUATION, ")") &&
+                verificarTokenEspecifico(TokenType.PUNCTUATION, "{")) {
+            return true;
+        }
+
+        currentIndex = savedIndex;
+        return false;
+    }
+
+    public boolean verificarElse() {
+        int savedIndex = currentIndex;
+
+        if (!verificarTokenEspecifico(TokenType.KEYWORD, "else")) {
+            return false;
+        }
+        if (!verificarToken(TokenType.IDENTIFIER)) {
+            return false;
+        }
+        if (verificarTokenEspecifico(TokenType.PUNCTUATION, "{")) {
+            return true;
+        }
+        currentIndex = savedIndex;
+        return false;
+    }
+
+    public boolean verificarFor() {
+        int savedIndex = currentIndex;
+
+        if (!verificarTokenEspecifico(TokenType.KEYWORD, "for")) {
+            return false;
+        }
+        if (!verificarTokenEspecifico(TokenType.KEYWORD, "int")) {
+            return false;
+        }
+        if (!verificarToken(TokenType.IDENTIFIER)) {
+            return false;
+        }
+        if (!verificarToken(TokenType.IDENTIFIER)) {
+            return false;
+        }
+        if (!verificarTokenEspecifico(TokenType.OPERATOR, "=")) {
+            return false;
+        }
+        if (!verificarToken(TokenType.LITERAL)) {
+            return false;
+        }
+        if (!verificarTokenEspecifico(TokenType.PUNCTUATION, ";")) {
+            return false;
+        }
+        if (!verificarToken(TokenType.IDENTIFIER)) {
+            return false;
+        }
+        if (!verificarToken(TokenType.OPERATOR)) {
+            return false;
+        }
+        if (!verificarToken(TokenType.LITERAL)) {
+            return false;
+        }
+        if (!verificarTokenEspecifico(TokenType.PUNCTUATION, ";")) {
+            return false;
+        }
+        if (!verificarToken(TokenType.IDENTIFIER)) {
+            return false;
+        }
+        if (!verificarToken(TokenType.OPERATOR)) {
+            return false;
+        }
+        if (!verificarToken(TokenType.OPERATOR)) {
+            return false;
+        }
+        if (!verificarTokenEspecifico(TokenType.PUNCTUATION, ")")) {
+            return false;
+        }
+        if (!verificarTokenEspecifico(TokenType.PUNCTUATION, "{")) {
+            return false;
+        }
+        if (verificarTokenEspecifico(TokenType.PUNCTUATION, "}")) {
+            return false;
+        }
+        currentIndex = savedIndex;
+        return true;
+
+    }
+
+    public boolean verificaConta() {
+        int savedIndex = currentIndex;
+        if (!verificarTokenEspecifico(TokenType.KEYWORD, "int")) {
+            return false;
+        }
+        if (!verificarToken(TokenType.IDENTIFIER)) {
+            return false;
+        }
+        if (!verificarTokenEspecifico(TokenType.OPERATOR, "=")) {
+            return false;
+        }
+        if (verificarToken(TokenType.IDENTIFIER) || verificarToken(TokenType.LITERAL)) {
+            return true;
+        }
+        if (!verificarToken(TokenType.OPERATOR)) {
+            return false;
+        }
+        if (verificarToken(TokenType.IDENTIFIER) || verificarToken(TokenType.LITERAL)) {
+            return true;
+        }
+        if (!verificarTokenEspecifico(TokenType.PUNCTUATION, ";")) {
+            return false;
+        }
+        currentIndex = savedIndex;
+        return true;
     }
 
     public boolean verificaExpressao() {
-        if(verificarToken(TokenType.IDENTIFIER) || verificarToken(TokenType.LITERAL)){
+        if (verificarToken(TokenType.IDENTIFIER) || verificarToken(TokenType.LITERAL)) {
             return true;
         }
         return false;
     }
 
-}
+    public boolean verificarAtribuicao() {
+        int savedIndex = currentIndex;
 
-    
+        if (verificarToken(TokenType.IDENTIFIER) &&
+                verificarTokenEspecifico(TokenType.OPERATOR, "=") &&
+                verificaExpressao() &&
+                verificarTokenEspecifico(TokenType.PUNCTUATION, ";")) {
+            return true;
+        }
+        currentIndex = savedIndex;
+        return false;
+    }
+
+    private boolean verificarBloco() {
+        while (currentIndex < tokens.size()) {
+            Token current = peekToken();
+            if (current == null) {
+                break;
+            }
+
+            if (current.getType() == TokenType.PUNCTUATION && current.getValue().equals("}")) {
+                break;
+            }
+
+            if (!verificarAtribuicao() && !verificarString()) {
+                break;
+            }
+        }
+        return true;
+    }
+
+    public boolean verificaPontuacao() {
+        int savedIndex = currentIndex;
+        if (verificarTokenEspecifico(TokenType.PUNCTUATION, "}")) {
+            return true;
+        }
+        currentIndex = savedIndex;
+        return false;
+    }
+}
