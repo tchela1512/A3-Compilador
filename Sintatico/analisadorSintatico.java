@@ -1,5 +1,8 @@
 package Sintatico;
 
+import Analisar.*;
+import Semantico.AnalisadorSemantico;
+import Semantico.TabelaSimbolos;
 import java.io.IOException;
 import java.util.List;
 import Analisar.*;
