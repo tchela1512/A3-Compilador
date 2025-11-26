@@ -5,7 +5,6 @@ import Semantico.AnalisadorSemantico;
 import Semantico.TabelaSimbolos;
 import java.io.IOException;
 import java.util.List;
-import Analisar.*;
 
 public class analisadorSintatico {
     private LeitorArquivo leitorArquivo;
@@ -28,6 +27,8 @@ public class analisadorSintatico {
             // Lê todas as linhas do arquivo
             List<String> linhas = leitorArquivo.lerLinhas();
 
+            TabelaSimbolos tabelaSimbolos = new TabelaSimbolos();
+
             // Processa cada linha
             for (String linha : linhas) {
                 System.out.println("\n Analisando linha: " + linha);
@@ -47,6 +48,15 @@ public class analisadorSintatico {
                 } catch (Exception e) {
                     System.out.println("Erro na análise sintática: " + e.getMessage());
                 }
+
+                try {
+                    AnalisadorSemantico semantico = new AnalisadorSemantico(tokens, tabelaSimbolos);
+                    semantico.analisar();
+                    System.out.println("Análise semântica: SUCESSO");
+                } catch (Exception e) {
+                    System.out.println("Erro semântico: " + e.getMessage());
+                }
+
             }
 
         } catch (IOException e) {
@@ -55,7 +65,7 @@ public class analisadorSintatico {
     }
 
     public static void main(String[] args) {
-        String arquivo = "teste.txt";
+        String arquivo = (args.length > 0) ? args[0] : "teste.txt";
         analisadorSintatico parser = new analisadorSintatico(arquivo);
         parser.analisar();
     }
