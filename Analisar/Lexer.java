@@ -42,7 +42,7 @@ public class Lexer {
         }
 
         String[] tokenPatterns = {
-            "if|else|while|for|String|int|boolean",         // Keywords
+            "if|else|while|for|String|int|boolean|True|False",         // Keywords
             "[a-zA-Z_][a-zA-Z0-9_]*",    // Identifiers
             "\\d+",                      // Literals
             "[+-/*=<>!]",                // Operators
