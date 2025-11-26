@@ -12,32 +12,36 @@ public class VerificadorEstruturas {
         this.currentIndex = 0;
     }
 
-    // função para verificar a estrutura de
     public boolean verificarEstrutura() {
         if (tokens == null || tokens.isEmpty()) {
             return false;
         }
-
         currentIndex = 0;
-
-        // Tenta verificar diferentes tipos de estruturas
         if (verificarDeclaracaoVariavelInt()) {
             return true;
         }
         if (verificarDeclaracaoVariavelString()) {
             return true;
         }
-        if (verificarDeclaracaoVariavelBoolean()){
+        if (verificarDeclaracaoVariavelBoolean()) {
             return true;
         }
-        if(verificarIf()){
+        if (verificarIf()) {
+            return true;
+        }
+        if (verificarFor()) {
+            return true;
+        }
+        if (verificarElse()) {
+            return true;
+        }
+        if (verificaPontuacao()) {
             return true;
         }
         return false;
 
     }
 
-    // verifica se o token é o tipo esperado e compara ao token lexer
     private boolean verificarTokenEspecifico(TokenType type, String value) {
         if (currentIndex >= tokens.size()) {
             return false;
@@ -64,7 +68,6 @@ public class VerificadorEstruturas {
         return false;
     }
 
-    // verifica o tokne para analisar
     private Token peekToken() {
         if (currentIndex >= tokens.size()) {
             return null;
@@ -79,8 +82,6 @@ public class VerificadorEstruturas {
     public void setCurrentIndex(int currentIndex) {
         this.currentIndex = currentIndex;
     }
-
-    // verifica a eclaração de uma variavel
 
     public boolean verificarDeclaracaoVariavelInt() {
         int savedIndex = currentIndex;
@@ -134,7 +135,8 @@ public class VerificadorEstruturas {
         if (!verificarTokenEspecifico(TokenType.OPERATOR, "=")) {
             return false;
         }
-        if (!verificarTokenEspecifico(TokenType.OPERATOR, "false") || !verificarTokenEspecifico(TokenType.OPERATOR, "true") ) {
+        if (!verificarTokenEspecifico(TokenType.OPERATOR, "false")
+                || !verificarTokenEspecifico(TokenType.OPERATOR, "true")) {
             return false;
         }
         if (verificarTokenEspecifico(TokenType.PUNCTUATION, ";")) {
@@ -145,30 +147,95 @@ public class VerificadorEstruturas {
 
     }
 
-    public boolean verificarIf(){
-         int savedIndex = currentIndex;
+    public boolean verificarIf() {
+        int savedIndex = currentIndex;
 
-        if (!verificarTokenEspecifico(TokenType.KEYWORD, "if")) {
-            return false;
+        if (verificarTokenEspecifico(TokenType.KEYWORD, "if") &&
+                verificarTokenEspecifico(TokenType.PUNCTUATION, "(") &&
+                verificarToken(TokenType.IDENTIFIER) &&
+                verificarToken(TokenType.OPERATOR) &&
+                verificarToken(TokenType.LITERAL) &&
+                verificarTokenEspecifico(TokenType.PUNCTUATION, ")") &&
+                verificarTokenEspecifico(TokenType.PUNCTUATION, "{")) {
+            return true;
         }
-        if (!verificarTokenEspecifico(TokenType.PUNCTUATION, "(")) {
+
+        currentIndex = savedIndex;
+        return false;
+    }
+
+    public boolean verificarElse() {
+        int savedIndex = currentIndex;
+
+        if (!verificarTokenEspecifico(TokenType.KEYWORD, "else")) {
             return false;
         }
         if (!verificarToken(TokenType.IDENTIFIER)) {
             return false;
         }
-       if (!verificarTokenEspecifico(TokenType.PUNCTUATION, ")")) {
+        if (verificarTokenEspecifico(TokenType.PUNCTUATION, "{")) {
+            return true;
+        }
+        currentIndex = savedIndex;
+        return false;
+    }
+
+    public boolean verificarFor() {
+        int savedIndex = currentIndex;
+
+        if (!verificarTokenEspecifico(TokenType.KEYWORD, "for")) {
+            return false;
+        }
+        if (!verificarTokenEspecifico(TokenType.KEYWORD, "int")) {
+            return false;
+        }
+        if (!verificarToken(TokenType.IDENTIFIER)) {
+            return false;
+        }
+        if (!verificarToken(TokenType.IDENTIFIER)) {
+            return false;
+        }
+        if (!verificarTokenEspecifico(TokenType.OPERATOR, "=")) {
+            return false;
+        }
+        if (!verificarToken(TokenType.LITERAL)) {
+            return false;
+        }
+        if (!verificarTokenEspecifico(TokenType.PUNCTUATION, ";")) {
+            return false;
+        }
+        if (!verificarToken(TokenType.IDENTIFIER)) {
+            return false;
+        }
+        if (!verificarToken(TokenType.OPERATOR)) {
+            return false;
+        }
+        if (!verificarToken(TokenType.LITERAL)) {
+            return false;
+        }
+        if (!verificarTokenEspecifico(TokenType.PUNCTUATION, ";")) {
+            return false;
+        }
+        if (!verificarToken(TokenType.IDENTIFIER)) {
+            return false;
+        }
+        if (!verificarToken(TokenType.OPERATOR)) {
+            return false;
+        }
+        if (!verificarToken(TokenType.OPERATOR)) {
+            return false;
+        }
+        if (!verificarTokenEspecifico(TokenType.PUNCTUATION, ")")) {
             return false;
         }
         if (!verificarTokenEspecifico(TokenType.PUNCTUATION, "{")) {
             return false;
         }
         if (verificarTokenEspecifico(TokenType.PUNCTUATION, "}")) {
-            return true;
+            return false;
         }
-        
         currentIndex = savedIndex;
-        return false;
+        return true;
 
     }
 
@@ -179,9 +246,9 @@ public class VerificadorEstruturas {
         return false;
     }
 
-      private boolean verificarAtribuicao() {
+    private boolean verificarAtribuicao() {
         int savedIndex = currentIndex;
-        
+
         if (verificarToken(TokenType.IDENTIFIER)) {
             if (verificarTokenEspecifico(TokenType.OPERATOR, "=")) {
                 if (verificaExpressao()) {
@@ -191,7 +258,7 @@ public class VerificadorEstruturas {
                 }
             }
         }
-        
+
         currentIndex = savedIndex;
         return false;
     }
@@ -214,5 +281,12 @@ public class VerificadorEstruturas {
         return true;
     }
 
-
+    public boolean verificaPontuacao() {
+        int savedIndex = currentIndex;
+        if (verificarTokenEspecifico(TokenType.PUNCTUATION, "}")) {
+            return true;
+        }
+        currentIndex = savedIndex;
+        return false;
+    }
 }
