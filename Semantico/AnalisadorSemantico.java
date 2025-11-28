@@ -1,7 +1,8 @@
 package Semantico;
 
-import Analisar.*;
 import java.util.List;
+
+import Lexico.*;
 
 public class AnalisadorSemantico {
     private List<Token> tokens;

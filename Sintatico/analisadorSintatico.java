@@ -1,10 +1,11 @@
 package Sintatico;
 
-import Analisar.*;
 import Semantico.AnalisadorSemantico;
 import Semantico.TabelaSimbolos;
 import java.io.IOException;
 import java.util.List;
+
+import Lexico.*;
 
 public class analisadorSintatico {
     private LeitorArquivo leitorArquivo;
@@ -31,7 +32,7 @@ public class analisadorSintatico {
 
             // Processa cada linha
             for (String linha : linhas) {
-                System.out.println("\n Analisando linha: " + linha);
+                System.out.println("\nAnalisando linha: " + linha);
 
                 // Tokeniza a linha usando o Lexer
                 Lexer lexer = new Lexer(linha);
@@ -62,11 +63,5 @@ public class analisadorSintatico {
         } catch (IOException e) {
             System.err.println("Erro ao ler o arquivo: " + e.getMessage());
         }
-    }
-
-    public static void main(String[] args) {
-        String arquivo = (args.length > 0) ? args[0] : "teste.txt";
-        analisadorSintatico parser = new analisadorSintatico(arquivo);
-        parser.analisar();
     }
 }

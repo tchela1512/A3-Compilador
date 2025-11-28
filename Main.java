@@ -4,7 +4,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
-import Analisar.*;
+
+import Lexico.*;
 import Sintatico.analisadorSintatico;
 
 public class Main {
@@ -34,6 +35,7 @@ public class Main {
 
         System.out.println(" ");
         System.out.println("__________Analisador Sintatico__________");
+        System.out.println("__________Analisador Semantico__________");
         System.out.println(" ");
 
         analisadorSintatico parser = new analisadorSintatico("teste.txt");

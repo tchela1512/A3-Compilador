@@ -1,1 +1,5 @@
-boolean teste = true;
+if ( a > b ){
+    int c = a + b;
+} else {
+    int c = b - b;
+}

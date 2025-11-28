@@ -2,9 +2,7 @@ package Sintatico;
 
 import java.util.List;
 
-
-
-import Analisar.*;
+import Lexico.*;
 
 public class VerificadorEstruturas {
     private List<Token> tokens;

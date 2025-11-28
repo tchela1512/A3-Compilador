@@ -1,4 +1,4 @@
-package Analisar;
+package Lexico;
 
 import java.util.ArrayList;
 import java.util.List;
