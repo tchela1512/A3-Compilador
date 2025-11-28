@@ -5,11 +5,13 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
 import Analisar.*;
+import Sintatico.analisadorSintatico;
 
 public class Main {
     public static void main(String[] args) {
         
-
+        System.out.println(" ");
+        System.out.println("__________Analisador Lexico_____________");
         File file = new File("teste.txt");
         try {
             BufferedReader br = new BufferedReader(new FileReader(file));
@@ -29,6 +31,13 @@ public class Main {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        System.out.println(" ");
+        System.out.println("__________Analisador Sintatico__________");
+        System.out.println(" ");
+
+        analisadorSintatico parser = new analisadorSintatico("teste.txt");
+        parser.analisar();
 
 
         //String code = "if (x > 10) { y = x + 5; }";
