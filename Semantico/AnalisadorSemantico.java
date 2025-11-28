@@ -74,7 +74,7 @@ public class AnalisadorSemantico {
     private boolean analisarDeclaracaoVariavelInt() throws Exception {
         int savedIndex = currentIndex;
 
-        if (!verificarTokenEspecifico(TokenType.KEYWORD, "int")) {
+        if (!verificarTokenEspecifico(TokenType.KEYWORD, "INTEIRO")) {
             currentIndex = savedIndex;
             return false;
         }
@@ -88,13 +88,13 @@ public class AnalisadorSemantico {
 
         if (verificarTokenEspecifico(TokenType.OPERATOR, "=")) {
             String tipoExpressao = analisarExpressao();
-            if (tipoExpressao != null && !tipoExpressao.equals("int")) {
-                throw new Exception("Tipo incompatível: esperado 'int', encontrado '" + tipoExpressao + "'");
+            if (tipoExpressao != null && !tipoExpressao.equals("INTEIRO")) {
+                throw new Exception("Tipo incompatível: esperado 'INTEIRO', encontrado '" + tipoExpressao + "'");
             }
         }
 
         if (verificarTokenEspecifico(TokenType.PUNCTUATION, ";")) {
-            tabelaSimbolos.adicionarSimbolo(nomeVariavel, "int");
+            tabelaSimbolos.adicionarSimbolo(nomeVariavel, "INTEIRO");
             return true;
         }
 
@@ -105,7 +105,7 @@ public class AnalisadorSemantico {
     private boolean analisarDeclaracaoVariavelString() throws Exception {
         int savedIndex = currentIndex;
 
-        if (!verificarTokenEspecifico(TokenType.KEYWORD, "String")) {
+        if (!verificarTokenEspecifico(TokenType.KEYWORD, "TEXTO")) {
             currentIndex = savedIndex;
             return false;
         }
@@ -119,13 +119,13 @@ public class AnalisadorSemantico {
 
         if (verificarTokenEspecifico(TokenType.OPERATOR, "=")) {
             String tipoExpressao = analisarExpressao();
-            if (tipoExpressao != null && !tipoExpressao.equals("String")) {
-                throw new Exception("Tipo incompatível: esperado 'String', encontrado '" + tipoExpressao + "'");
+            if (tipoExpressao != null && !tipoExpressao.equals("TEXTO")) {
+                throw new Exception("Tipo incompatível: esperado 'TEXTO', encontrado '" + tipoExpressao + "'");
             }
         }
 
         if (verificarTokenEspecifico(TokenType.PUNCTUATION, ";")) {
-            tabelaSimbolos.adicionarSimbolo(nomeVariavel, "String");
+            tabelaSimbolos.adicionarSimbolo(nomeVariavel, "TEXTO");
             return true;
         }
 
@@ -136,7 +136,7 @@ public class AnalisadorSemantico {
     private boolean analisarDeclaracaoVariavelBoolean() throws Exception {
         int savedIndex = currentIndex;
 
-        if (!verificarTokenEspecifico(TokenType.KEYWORD, "boolean")) {
+        if (!verificarTokenEspecifico(TokenType.KEYWORD, "LOGICO")) {
             currentIndex = savedIndex;
             return false;
         }
@@ -150,13 +150,13 @@ public class AnalisadorSemantico {
 
         if (verificarTokenEspecifico(TokenType.OPERATOR, "=")) {
             String tipoExpressao = analisarExpressao();
-            if (tipoExpressao != null && !tipoExpressao.equals("boolean")) {
-                throw new Exception("Tipo incompatível: esperado 'boolean', encontrado '" + tipoExpressao + "'");
+            if (tipoExpressao != null && !tipoExpressao.equals("LOGICO")) {
+                throw new Exception("Tipo incompatível: esperado 'LOGICO', encontrado '" + tipoExpressao + "'");
             }
         }
 
         if (verificarTokenEspecifico(TokenType.PUNCTUATION, ";")) {
-            tabelaSimbolos.adicionarSimbolo(nomeVariavel, "boolean");
+            tabelaSimbolos.adicionarSimbolo(nomeVariavel, "LOGICO");
             return true;
         }
 
@@ -167,7 +167,7 @@ public class AnalisadorSemantico {
     private boolean analisarIf() throws Exception {
         int savedIndex = currentIndex;
 
-        if (!verificarTokenEspecifico(TokenType.KEYWORD, "if")) {
+        if (!verificarTokenEspecifico(TokenType.KEYWORD, "SE")) {
             currentIndex = savedIndex;
             return false;
         }
@@ -178,7 +178,7 @@ public class AnalisadorSemantico {
         }
 
         String tipoCondicao = analisarExpressao();
-        if (tipoCondicao == null || !tipoCondicao.equals("boolean")) {
+        if (tipoCondicao == null || !tipoCondicao.equals("LOGICO")) {
             throw new Exception("Condição do if deve ser do tipo boolean");
         }
 
@@ -245,15 +245,15 @@ public class AnalisadorSemantico {
         }
 
         if (token.getType() == TokenType.KEYWORD &&
-            (token.getValue().equalsIgnoreCase("true") || token.getValue().equalsIgnoreCase("false"))) {
+            (token.getValue().equalsIgnoreCase("VERDADEIRO") || token.getValue().equalsIgnoreCase("FALSO"))) {
             currentIndex++;
-            return "boolean";
+            return "LOGICO";
         }
 
         if (token.getType() == TokenType.IDENTIFIER &&
-            (token.getValue().equalsIgnoreCase("true") || token.getValue().equalsIgnoreCase("false"))) {
+            (token.getValue().equalsIgnoreCase("VERDADEIRO") || token.getValue().equalsIgnoreCase("FALSO"))) {
             currentIndex++;
-            return "boolean";
+            return "LOGICO";
         }
 
         if (token.getType() == TokenType.LITERAL) {
@@ -311,18 +311,18 @@ public class AnalisadorSemantico {
         } else {
             return tipoBase;
         }
-        if (!tipoBase.equals("int") || !tipoDireita.equals("int")) {
+        if (!tipoBase.equals("INTEIRO") || !tipoDireita.equals("INTEIRO")) {
             throw new Exception("Operação inválida entre tipos '" + tipoBase + "' e '" + tipoDireita + "'");
         }
         if (operadorRelacional) {
-            return "boolean";
+            return "LOGICO";
         }
-        return "int";
+        return "INTEIRO";
     }
 
     private String consumirOperacaoComTipoBase(String tipoBase) throws Exception {
-        if (tipoBase.equals("int")) {
-            return consumirOperacaoNumerica("int");
+        if (tipoBase.equals("INTEIRO")) {
+            return consumirOperacaoNumerica("INTEIRO");
         }
         return tipoBase;
     }

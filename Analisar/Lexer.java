@@ -42,11 +42,12 @@ public class Lexer {
         }
 
         String[] tokenPatterns = {
-            "if|else|while|for|String|int|boolean|True|False",         // Keywords
-            "[a-zA-Z_][a-zA-Z0-9_]*",    // Identifiers
-            "\\d+",                      // Literals
-            "[+-/*=<>!]",                // Operators
-            "[.,;(){}]",                 // Punctuation
+            "\\b(SE|SENAO|ENQUANTO|PARA|TEXTO|INTEIRO|LOGICO)\\b", // Keywords PT-BR
+            "\\b(VERDADEIRO|FALSO)\\b",                           // Boolean literals as keywords
+            "[a-zA-Z_][a-zA-Z0-9_]*",                                // Identifiers
+            "\\d+",                                                // Numeric literals
+            "[+\\-/*=<>!]",                                          // Operators
+            "[.,;(){}]",                                             // Punctuation
         };
 
         TokenType[] tokenTypes = {
@@ -58,7 +59,7 @@ public class Lexer {
         };
 
         for (int i = 0; i < tokenPatterns.length; i++) {
-            Pattern pattern = Pattern.compile("^" + tokenPatterns[i]);
+            Pattern pattern = Pattern.compile("^" + tokenPatterns[i], Pattern.CASE_INSENSITIVE);
             Matcher matcher = pattern.matcher(input.substring(currentPosition));
 
             if (matcher.find()) {

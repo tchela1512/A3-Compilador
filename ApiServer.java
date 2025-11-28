@@ -1,3 +1,7 @@
+import Analisar.*;
+import Semantico.AnalisadorSemantico;
+import Semantico.TabelaSimbolos;
+import Sintatico.VerificadorEstruturas;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
@@ -8,15 +12,14 @@ import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import Analisar.*;
-import Sintatico.VerificadorEstruturas;
-import Semantico.AnalisadorSemantico;
-import Semantico.TabelaSimbolos;
 
 public class ApiServer {
     public static void main(String[] args) throws IOException {
         HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
         server.createContext("/analisar", new AnalyzeHandler());
+        server.createContext("/lexico", new LexicoHandler());
+        server.createContext("/sintatico", new SintaticoHandler());
+        server.createContext("/semantico", new SemanticoHandler());
         server.setExecutor(null);
         server.start();
     }
@@ -25,10 +28,10 @@ public class ApiServer {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
             if (!exchange.getRequestMethod().equalsIgnoreCase("POST")) {
-                sendResponse(exchange, 405, "{\"error\":\"Método não permitido\"}");
+                ApiServer.sendResponse(exchange, 405, "{\"error\":\"Método não permitido\"}");
                 return;
             }
-            String body = readBody(exchange.getRequestBody());
+            String body = ApiServer.readBody(exchange.getRequestBody());
             String[] linhas = body.split("\r?\n");
             TabelaSimbolos tabela = new TabelaSimbolos();
             List<String> resultados = new ArrayList<>();
@@ -56,48 +59,154 @@ public class ApiServer {
                     for (int i = 0; i < tokens.size(); i++) {
                         Token t = tokens.get(i);
                         toks.append("{\"type\":\"").append(t.getType()).append("\",");
-                        toks.append("\"value\":\"").append(escape(t.getValue())).append("\"}");
+                        toks.append("\"value\":\"").append(ApiServer.escape(t.getValue())).append("\"}");
                         if (i < tokens.size() - 1) toks.append(",");
                     }
                     toks.append("]");
-                    String item = "{\"linha\":\"" + escape(linha) + "\"," +
+                    String item = "{\"linha\":\"" + ApiServer.escape(linha) + "\"," +
                             "\"tokens\":" + toks + "," +
                             "\"sintatico\":\"" + (sintaticoOk ? "SUCESSO" : "FALHA") + "\"," +
-                            "\"semantico\":\"" + escape(semanticoStatus) + "\"}";
+                            "\"semantico\":\"" + ApiServer.escape(semanticoStatus) + "\"}";
                     resultados.add(item);
                 } catch (Exception e) {
-                    String item = "{\"linha\":\"" + escape(linha) + "\"," +
-                            "\"erro\":\"" + escape(e.getMessage()) + "\"}";
+                    String item = "{\"linha\":\"" + ApiServer.escape(linha) + "\"," +
+                            "\"erro\":\"" + ApiServer.escape(e.getMessage()) + "\"}";
                     resultados.add(item);
+                }
+            }
+            String json = "[" + String.join(",", resultados) + "]";
+            ApiServer.addCORS(exchange);
+            ApiServer.sendResponse(exchange, 200, json);
+        }
+    }
+
+    private static String readBody(InputStream is) throws IOException {
+        byte[] buf = is.readAllBytes();
+        return new String(buf, StandardCharsets.UTF_8);
+    }
+
+    private static void sendResponse(HttpExchange exchange, int status, String body) throws IOException {
+        byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
+        exchange.getResponseHeaders().set("Content-Type", "application/json; charset=utf-8");
+        exchange.sendResponseHeaders(status, bytes.length);
+        try (OutputStream os = exchange.getResponseBody()) {
+            os.write(bytes);
+        }
+    }
+
+    private static void addCORS(HttpExchange exchange) {
+        exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+        exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "POST, OPTIONS");
+        exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type");
+    }
+
+    private static String escape(String s) {
+        return s.replace("\\", "\\\\").replace("\"", "\\\"");
+    }
+
+    static class LexicoHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) throws IOException {
+            if (exchange.getRequestMethod().equalsIgnoreCase("OPTIONS")) {
+                ApiServer.addCORS(exchange);
+                ApiServer.sendResponse(exchange, 200, "{}");
+                return;
+            }
+            if (!exchange.getRequestMethod().equalsIgnoreCase("POST")) {
+                ApiServer.sendResponse(exchange, 405, "{\"error\":\"Método não permitido\"}");
+                return;
+            }
+            String body = ApiServer.readBody(exchange.getRequestBody());
+            String[] linhas = body.split("\r?\n");
+            List<String> resultados = new ArrayList<>();
+            for (String linha : linhas) {
+                Lexer lexer = new Lexer(linha);
+                List<Token> tokens = lexer.tokenize();
+                StringBuilder toks = new StringBuilder();
+                toks.append("[");
+                for (int i = 0; i < tokens.size(); i++) {
+                    Token t = tokens.get(i);
+                    toks.append("{\"type\":\"").append(t.getType()).append("\",");
+                    toks.append("\"value\":\"").append(escape(t.getValue())).append("\"}");
+                    if (i < tokens.size() - 1) toks.append(",");
+                }
+                toks.append("]");
+                resultados.add("{\"linha\":\"" + escape(linha) + "\",\"tokens\":" + toks + "}");
+            }
+            String json = "[" + String.join(",", resultados) + "]";
+            ApiServer.addCORS(exchange);
+            ApiServer.sendResponse(exchange, 200, json);
+        }
+    }
+
+    static class SintaticoHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) throws IOException {
+            if (exchange.getRequestMethod().equalsIgnoreCase("OPTIONS")) {
+                ApiServer.addCORS(exchange);
+                ApiServer.sendResponse(exchange, 200, "{}");
+                return;
+            }
+            if (!exchange.getRequestMethod().equalsIgnoreCase("POST")) {
+                ApiServer.sendResponse(exchange, 405, "{\"error\":\"Método não permitido\"}");
+                return;
+            }
+            String body = ApiServer.readBody(exchange.getRequestBody());
+            String[] linhas = body.split("\r?\n");
+            List<String> resultados = new ArrayList<>();
+            for (String linha : linhas) {
+                try {
+                    Lexer lexer = new Lexer(linha);
+                    List<Token> tokens = lexer.tokenize();
+                    VerificadorEstruturas verificador = new VerificadorEstruturas(tokens);
+                    boolean ok = verificador.verificarEstrutura();
+                    resultados.add("{\"linha\":\"" + escape(linha) + "\",\"sintatico\":\"" + (ok?"SUCESSO":"FALHA") + "\"}");
+                } catch (Exception e) {
+                    resultados.add("{\"linha\":\"" + escape(linha) + "\",\"erro\":\"" + escape(e.getMessage()) + "\"}");
+                }
+            }
+            String json = "[" + String.join(",", resultados) + "]";
+            ApiServer.addCORS(exchange);
+            ApiServer.sendResponse(exchange, 200, json);
+        }
+    }
+
+    static class SemanticoHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) throws IOException {
+            if (exchange.getRequestMethod().equalsIgnoreCase("OPTIONS")) {
+                addCORS(exchange);
+                sendResponse(exchange, 200, "{}");
+                return;
+            }
+            if (!exchange.getRequestMethod().equalsIgnoreCase("POST")) {
+                sendResponse(exchange, 405, "{\"error\":\"Método não permitido\"}");
+                return;
+            }
+            String body = readBody(exchange.getRequestBody());
+            String[] linhas = body.split("\r?\n");
+            TabelaSimbolos tabela = new TabelaSimbolos();
+            List<String> resultados = new ArrayList<>();
+            for (String linha : linhas) {
+                try {
+                    Lexer lexer = new Lexer(linha);
+                    List<Token> tokens = lexer.tokenize();
+                    String semStatus;
+                    try {
+                        AnalisadorSemantico sem = new AnalisadorSemantico(tokens, tabela);
+                        sem.analisar();
+                        semStatus = "SUCESSO";
+                    } catch (Exception e) {
+                        semStatus = e.getMessage();
+                    }
+                    resultados.add("{\"linha\":\"" + escape(linha) + "\",\"semantico\":\"" + escape(semStatus) + "\"}");
+                } catch (Exception e) {
+                    resultados.add("{\"linha\":\"" + escape(linha) + "\",\"erro\":\"" + escape(e.getMessage()) + "\"}");
                 }
             }
             String json = "[" + String.join(",", resultados) + "]";
             addCORS(exchange);
             sendResponse(exchange, 200, json);
-        }
-
-        private String readBody(InputStream is) throws IOException {
-            byte[] buf = is.readAllBytes();
-            return new String(buf, StandardCharsets.UTF_8);
-        }
-
-        private void sendResponse(HttpExchange exchange, int status, String body) throws IOException {
-            byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
-            exchange.getResponseHeaders().set("Content-Type", "application/json; charset=utf-8");
-            exchange.sendResponseHeaders(status, bytes.length);
-            try (OutputStream os = exchange.getResponseBody()) {
-                os.write(bytes);
-            }
-        }
-
-        private void addCORS(HttpExchange exchange) {
-            exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
-            exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "POST, OPTIONS");
-            exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type");
-        }
-
-        private String escape(String s) {
-            return s.replace("\\", "\\\\").replace("\"", "\\\"");
         }
     }
 }
