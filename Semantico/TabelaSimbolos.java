@@ -12,10 +12,7 @@ public class TabelaSimbolos {
         tabela.put(nome, new Simbolo(nome, tipo));
     }
 
-    public Simbolo buscar(String nome) throws Exception{
-        if (!tabela.containsKey(nome)){
-            throw new Exception("Variável '" + nome + "' não declarada.");
-        }
+    public Simbolo buscar(String nome){
         return tabela.get(nome);
     }
 }

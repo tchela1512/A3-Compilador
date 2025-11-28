@@ -1,10 +1,7 @@
 package Sintatico;
 
-import java.util.List;
-
-import javax.print.DocFlavor.STRING;
-
 import Analisar.*;
+import java.util.List;
 
 public class VerificadorEstruturas {
     private List<Token> tokens;
@@ -243,65 +240,7 @@ public class VerificadorEstruturas {
         return true;
 
     }
-      public boolean verificarFor(){
-         int savedIndex = currentIndex;
-
-        if (!verificarTokenEspecifico(TokenType.KEYWORD, "for")) {
-            return false;
-        }
-        if (verificarTokenEspecifico(TokenType.PUNCTUATION, "(")) {
-            return true;
-        }
-        if (!verificarTokenEspecifico(TokenType.KEYWORD, "int")) {
-            return false;
-        }
-        if (!verificarToken(TokenType.IDENTIFIER)) {
-            return false;
-        }
-        if (verificarTokenEspecifico(TokenType.OPERATOR, "=")) {
-            return true;
-        }
-        if (verificarToken(TokenType.LITERAL)) {
-            return true;
-        }
-        if (verificarTokenEspecifico(TokenType.PUNCTUATION, ";")) {
-            return true;
-        }
-        if (verificarToken(TokenType.IDENTIFIER)) {
-            return true;
-        }
-        if (verificarToken(TokenType.OPERATOR)) {
-            return true;
-        }
-        if (verificarToken(TokenType.LITERAL)) {
-            return true;
-        }
-        if (verificarTokenEspecifico(TokenType.PUNCTUATION, ";")) {
-            return true;
-        }
-        if (verificarToken(TokenType.IDENTIFIER)) {
-            return true;
-        }
-        if (verificarToken(TokenType.OPERATOR)) {
-            return true;
-        }
-        if (verificarToken(TokenType.OPERATOR)) {
-            return true;
-        }
-        if (verificarTokenEspecifico(TokenType.PUNCTUATION, ")")) {
-            return true;
-        }
-         if (verificarTokenEspecifico(TokenType.PUNCTUATION, "{")) {
-            return true;
-        }
-        if (verificarTokenEspecifico(TokenType.PUNCTUATION, "}")) {
-            return true;
-        }
-        currentIndex = savedIndex;
-        return false;
-
-
-    }
+    
     
 
     public boolean verificaConta() {

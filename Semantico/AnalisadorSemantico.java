@@ -148,19 +148,12 @@ public class AnalisadorSemantico {
 
         String nomeVariavel = tokens.get(savedIndex + 1).getValue();
 
-        if (!verificarTokenEspecifico(TokenType.OPERATOR, "=")) {
-            currentIndex = savedIndex;
-            return false;
+        if (verificarTokenEspecifico(TokenType.OPERATOR, "=")) {
+            String tipoExpressao = analisarExpressao();
+            if (tipoExpressao != null && !tipoExpressao.equals("boolean")) {
+                throw new Exception("Tipo incompatível: esperado 'boolean', encontrado '" + tipoExpressao + "'");
+            }
         }
-
-        Token valorToken = peekToken();
-        if (valorToken == null || 
-            (valorToken.getType() != TokenType.IDENTIFIER) ||
-            (!valorToken.getValue().equals("true") && !valorToken.getValue().equals("false"))) {
-            currentIndex = savedIndex;
-            return false;
-        }
-        verificarToken(TokenType.IDENTIFIER);
 
         if (verificarTokenEspecifico(TokenType.PUNCTUATION, ";")) {
             tabelaSimbolos.adicionarSimbolo(nomeVariavel, "boolean");
@@ -184,20 +177,9 @@ public class AnalisadorSemantico {
             return false;
         }
 
-        if (!verificarToken(TokenType.IDENTIFIER)) {
-            currentIndex = savedIndex;
-            return false;
-        }
-
-        String nomeVariavel = tokens.get(savedIndex + 2).getValue();
-
-        Simbolo simbolo = tabelaSimbolos.buscar(nomeVariavel);
-        if (simbolo == null) {
-            throw new Exception("Variável '" + nomeVariavel + "' não declarada na condição do if");
-        }
-
-        if (!simbolo.getTipo().equals("boolean")) {
-            throw new Exception("Condição do if deve ser do tipo boolean, mas '" + nomeVariavel + "' é do tipo '" + simbolo.getTipo() + "'");
+        String tipoCondicao = analisarExpressao();
+        if (tipoCondicao == null || !tipoCondicao.equals("boolean")) {
+            throw new Exception("Condição do if deve ser do tipo boolean");
         }
 
         if (!verificarTokenEspecifico(TokenType.PUNCTUATION, ")")) {
@@ -262,30 +244,87 @@ public class AnalisadorSemantico {
             return null;
         }
 
+        if (token.getType() == TokenType.KEYWORD &&
+            (token.getValue().equalsIgnoreCase("true") || token.getValue().equalsIgnoreCase("false"))) {
+            currentIndex++;
+            return "boolean";
+        }
+
+        if (token.getType() == TokenType.IDENTIFIER &&
+            (token.getValue().equalsIgnoreCase("true") || token.getValue().equalsIgnoreCase("false"))) {
+            currentIndex++;
+            return "boolean";
+        }
+
         if (token.getType() == TokenType.LITERAL) {
-            verificarToken(TokenType.LITERAL);
-            return "int";
+            currentIndex++;
+            return consumirOperacaoNumerica("int");
         }
 
         if (token.getType() == TokenType.IDENTIFIER) {
             String nomeVariavel = token.getValue();
-            verificarToken(TokenType.IDENTIFIER);
-
+            currentIndex++;
             Simbolo simbolo = tabelaSimbolos.buscar(nomeVariavel);
             if (simbolo == null) {
                 throw new Exception("Variável '" + nomeVariavel + "' não declarada");
             }
-
-            return simbolo.getTipo();
-        }
-
-        if (token.getType() == TokenType.IDENTIFIER && 
-            (token.getValue().equals("true") || token.getValue().equals("false"))) {
-            verificarToken(TokenType.IDENTIFIER);
-            return "boolean";
+            String tipoBase = simbolo.getTipo();
+            if (peekToken() != null && peekToken().getType() == TokenType.OPERATOR) {
+                return consumirOperacaoComTipoBase(tipoBase);
+            }
+            return tipoBase;
         }
 
         return null;
+    }
+
+    private String consumirOperacaoNumerica(String tipoBase) throws Exception {
+        if (peekToken() == null || peekToken().getType() != TokenType.OPERATOR) {
+            return tipoBase;
+        }
+        Token op1 = tokens.get(currentIndex);
+        currentIndex++;
+        Token op2 = peekToken();
+        boolean operadorRelacional = false;
+        if (op1.getValue().equals("<") || op1.getValue().equals(">") || op1.getValue().equals("!") || op1.getValue().equals("=")) {
+            if (op2 != null && op2.getType() == TokenType.OPERATOR && op2.getValue().equals("=")) {
+                currentIndex++;
+            }
+            operadorRelacional = true;
+        }
+        Token prox = peekToken();
+        if (prox == null) {
+            return tipoBase;
+        }
+        String tipoDireita = null;
+        if (prox.getType() == TokenType.LITERAL) {
+            currentIndex++;
+            tipoDireita = "int";
+        } else if (prox.getType() == TokenType.IDENTIFIER) {
+            String nome = prox.getValue();
+            currentIndex++;
+            Simbolo s = tabelaSimbolos.buscar(nome);
+            if (s == null) {
+                throw new Exception("Variável '" + nome + "' não declarada");
+            }
+            tipoDireita = s.getTipo();
+        } else {
+            return tipoBase;
+        }
+        if (!tipoBase.equals("int") || !tipoDireita.equals("int")) {
+            throw new Exception("Operação inválida entre tipos '" + tipoBase + "' e '" + tipoDireita + "'");
+        }
+        if (operadorRelacional) {
+            return "boolean";
+        }
+        return "int";
+    }
+
+    private String consumirOperacaoComTipoBase(String tipoBase) throws Exception {
+        if (tipoBase.equals("int")) {
+            return consumirOperacaoNumerica("int");
+        }
+        return tipoBase;
     }
 }
 
