@@ -1,6 +1,9 @@
 package Sintatico;
 
 import java.util.List;
+
+
+
 import Analisar.*;
 
 public class VerificadorEstruturas {
