@@ -13,6 +13,7 @@ public class Main {
         
         System.out.println(" ");
         System.out.println("__________Analisador Lexico_____________");
+        System.out.println(" ");
         File file = new File("teste.txt");
         try {
             BufferedReader br = new BufferedReader(new FileReader(file));
@@ -33,9 +34,6 @@ public class Main {
             e.printStackTrace();
         }
 
-        System.out.println(" ");
-        System.out.println("__________Analisador Sintatico__________");
-        System.out.println("__________Analisador Semantico__________");
         System.out.println(" ");
 
         analisadorSintatico parser = new analisadorSintatico("teste.txt");
