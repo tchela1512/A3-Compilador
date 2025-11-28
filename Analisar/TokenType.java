@@ -1,4 +1,0 @@
-package Analisar;
-public enum TokenType {
-    KEYWORD, IDENTIFIER, LITERAL, OPERATOR, PUNCTUATION, WHITESPACE, COMMENT, UNKNOWN
-}
