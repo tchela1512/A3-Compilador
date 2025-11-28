@@ -1,1 +1,8 @@
-if (x > 10) { y = x + 5; }
+INTEIRO a = 10
+INTEIRO b = 15
+
+SE(a>b){
+    INTEIRO c = a - b
+}SENAO{
+    INTEIRO c = a + b
+}

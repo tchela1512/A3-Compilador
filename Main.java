@@ -4,18 +4,23 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
-import Analisar.*;
+
+import Lexico.*;
+import Semantico.AnalisadorSemantico;
+import Semantico.TabelaSimbolos;
+import Sintatico.analisadorSintatico;
 
 public class Main {
     public static void main(String[] args) {
         
-
+        System.out.println(" ");
+        System.out.println("__________Analisador Lexico_____________");
         File file = new File("teste.txt");
         try {
             BufferedReader br = new BufferedReader(new FileReader(file));
             String st;
             while((st=br.readLine()) != null){
-            //    System.out.println(st);
+                System.out.println(st);
                 Lexer lexer = new Lexer(st);
                 List<Token> tokens = lexer.tokenize();
 
@@ -25,20 +30,24 @@ public class Main {
 
             }
         } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
+        System.out.println(" ");
+        System.out.println("__________Analisador Sintatico__________");
+        System.out.println(" ");
 
-        //String code = "if (x > 10) { y = x + 5; }";
-        //Lexer lexer = new Lexer(sc);
-        //List<Token> tokens = lexer.tokenize();
+        analisadorSintatico parser = new analisadorSintatico("teste.txt");
+        parser.analisar();
 
-        //for (Token token : tokens) {
-        //    System.out.println(token);
-        //}
+        System.out.println(" ");
+        System.out.println("__________Analisador Semântico__________");
+        System.out.println(" ");
+
+        
+        //AnalisadorSemantico interpreter = new AnalisadorSemantico("teste.txt", TabelaSimbolos);
+        //interpreter.analisar();
     }
 }
