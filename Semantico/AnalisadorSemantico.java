@@ -22,6 +22,8 @@ public class AnalisadorSemantico {
 
         currentIndex = 0;
 
+        gerenciarEscopo();
+
         if (analisarDeclaracaoVariavelInteiro()) {
             return;
         }
@@ -245,14 +247,7 @@ public class AnalisadorSemantico {
             return null;
         }
 
-        if (token.getType() == TokenType.KEYWORD &&
-            (token.getValue().equalsIgnoreCase("VERDADEIRO") || token.getValue().equalsIgnoreCase("FALSO"))) {
-            currentIndex++;
-            return "LOGICO";
-        }
-
-        if (token.getType() == TokenType.IDENTIFIER &&
-            (token.getValue().equalsIgnoreCase("VERDADEIRO") || token.getValue().equalsIgnoreCase("FALSO"))) {
+        if (token.getType() == TokenType.BOOLEAN_LITERAL) {
             currentIndex++;
             return "LOGICO";
         }
@@ -278,6 +273,18 @@ public class AnalisadorSemantico {
         }
 
         return null;
+    }
+
+    private void gerenciarEscopo() {
+        for (Token t : tokens) {
+            if (t.getType() == TokenType.PUNCTUATION) {
+                if ("{".equals(t.getValue())) {
+                    tabelaSimbolos.pushEscopo();
+                } else if ("}".equals(t.getValue())) {
+                    tabelaSimbolos.popEscopo();
+                }
+            }
+        }
     }
 
         private String consumirOperacaoNumerica(String tipoBase) throws Exception {

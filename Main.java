@@ -1,14 +1,13 @@
+import Lexico.*;
+import Semantico.AnalisadorSemantico;
+import Semantico.TabelaSimbolos;
+import Sintatico.analisadorSintatico;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
-
-import Lexico.*;
-import Semantico.AnalisadorSemantico;
-import Semantico.TabelaSimbolos;
-import Sintatico.analisadorSintatico;
 
 public class Main {
     public static void main(String[] args) {
@@ -46,8 +45,25 @@ public class Main {
         System.out.println("__________Analisador Semântico__________");
         System.out.println(" ");
 
-        
-        //AnalisadorSemantico interpreter = new AnalisadorSemantico("teste.txt", TabelaSimbolos);
-        //interpreter.analisar();
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(new File("teste.txt")));
+            String st;
+            TabelaSimbolos tabela = new TabelaSimbolos();
+            while ((st = br.readLine()) != null) {
+                Lexer lexer = new Lexer(st);
+                List<Token> tokens = lexer.tokenize();
+                try {
+                    AnalisadorSemantico sem = new AnalisadorSemantico(tokens, tabela);
+                    sem.analisar();
+                    System.out.println("Linha: " + st);
+                    System.out.println("Semântico: SUCESSO");
+                } catch (Exception e) {
+                    System.out.println("Linha: " + st);
+                    System.out.println("Erro semântico: " + e.getMessage());
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Erro semântico (geral): " + e.getMessage());
+        }
     }
 }

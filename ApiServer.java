@@ -1,4 +1,4 @@
-import Analisar.*;
+import Lexico.*;
 import Semantico.AnalisadorSemantico;
 import Semantico.TabelaSimbolos;
 import Sintatico.VerificadorEstruturas;
@@ -20,6 +20,7 @@ public class ApiServer {
         server.createContext("/lexico", new LexicoHandler());
         server.createContext("/sintatico", new SintaticoHandler());
         server.createContext("/semantico", new SemanticoHandler());
+        server.createContext("/resultado", new ResultadoHandler());
         server.setExecutor(null);
         server.start();
     }
@@ -27,6 +28,11 @@ public class ApiServer {
     static class AnalyzeHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
+            if (exchange.getRequestMethod().equalsIgnoreCase("OPTIONS")) {
+                ApiServer.addCORS(exchange);
+                ApiServer.sendResponse(exchange, 200, "{}");
+                return;
+            }
             if (!exchange.getRequestMethod().equalsIgnoreCase("POST")) {
                 ApiServer.sendResponse(exchange, 405, "{\"error\":\"Método não permitido\"}");
                 return;
@@ -75,6 +81,54 @@ public class ApiServer {
                 }
             }
             String json = "[" + String.join(",", resultados) + "]";
+            ApiServer.addCORS(exchange);
+            ApiServer.sendResponse(exchange, 200, json);
+        }
+    }
+
+    static class ResultadoHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) throws IOException {
+            if (exchange.getRequestMethod().equalsIgnoreCase("OPTIONS")) {
+                ApiServer.addCORS(exchange);
+                ApiServer.sendResponse(exchange, 200, "{}");
+                return;
+            }
+            if (!exchange.getRequestMethod().equalsIgnoreCase("POST")) {
+                ApiServer.sendResponse(exchange, 405, "{\"error\":\"Método não permitido\"}");
+                return;
+            }
+            String body = ApiServer.readBody(exchange.getRequestBody());
+            String[] linhas = body.split("\r?\n");
+            Semantico.TabelaSimbolos tabela = new Semantico.TabelaSimbolos();
+            int sucessos = 0;
+            int erros = 0;
+            for (String linha : linhas) {
+                try {
+                    Lexer lexer = new Lexer(linha);
+                    java.util.List<Token> tokens = lexer.tokenize();
+                    try {
+                        Semantico.AnalisadorSemantico sem = new Semantico.AnalisadorSemantico(tokens, tabela);
+                        sem.analisar();
+                        sucessos++;
+                    } catch (Exception e) {
+                        erros++;
+                    }
+                } catch (Exception e) {
+                    erros++;
+                }
+            }
+            StringBuilder simbs = new StringBuilder();
+            simbs.append("[");
+            java.util.List<Semantico.Simbolo> lista = tabela.listarSimbolos();
+            for (int i = 0; i < lista.size(); i++) {
+                Semantico.Simbolo s = lista.get(i);
+                simbs.append("{\"nome\":\"").append(ApiServer.escape(s.getNome())).append("\",");
+                simbs.append("\"tipo\":\"").append(ApiServer.escape(s.getTipo())).append("\"}");
+                if (i < lista.size() - 1) simbs.append(",");
+            }
+            simbs.append("]");
+            String json = "{\"sucessos\":" + sucessos + ",\"erros\":" + erros + ",\"simbolos\":" + simbs + "}";
             ApiServer.addCORS(exchange);
             ApiServer.sendResponse(exchange, 200, json);
         }
