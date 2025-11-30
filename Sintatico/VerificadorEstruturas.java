@@ -1,7 +1,8 @@
 package Sintatico;
 
-import Analisar.*;
 import java.util.List;
+
+import Lexico.*;
 
 public class VerificadorEstruturas {
     private List<Token> tokens;
@@ -17,22 +18,22 @@ public class VerificadorEstruturas {
             return false;
         }
         currentIndex = 0;
-        if (verificarInt()) {
+        if (verificarInteiro()) {
             return true;
         }
-        if (verificarString()) {
+        if (verificarTexto()) {
             return true;
         }
-        if (verificarBoolean()) {
+        if (verificarLogico()) {
             return true;
         }
-        if (verificarIf()) {
+        if (verificarSe()) {
             return true;
         }
-        if (verificarFor()) {
+        if (verificarPara()) {
             return true;
         }
-        if (verificarElse()) {
+        if (verificarSenao()) {
             return true;
         }
         if (verificaPontuacao()) {
@@ -71,13 +72,6 @@ public class VerificadorEstruturas {
         return false;
     }
 
-    private Token peekToken() {
-        if (currentIndex >= tokens.size()) {
-            return null;
-        }
-        return tokens.get(currentIndex);
-    }
-
     public int getCurrentIndex() {
         return currentIndex;
     }
@@ -86,10 +80,10 @@ public class VerificadorEstruturas {
         this.currentIndex = currentIndex;
     }
 
-    public boolean verificarInt() {
+    public boolean verificarInteiro() {
         int savedIndex = currentIndex;
 
-        if (!verificarTokenEspecifico(TokenType.KEYWORD, "int")) {
+        if (!verificarTokenEspecifico(TokenType.KEYWORD, "INTEIRO")) {
             return false;
         }
         if (!verificarToken(TokenType.IDENTIFIER)) {
@@ -105,10 +99,10 @@ public class VerificadorEstruturas {
         return false;
     }
 
-    public boolean verificarString() {
+    public boolean verificarTexto() {
         int savedIndex = currentIndex;
 
-        if (!verificarTokenEspecifico(TokenType.KEYWORD, "String")) {
+        if (!verificarTokenEspecifico(TokenType.KEYWORD, "TEXTO")) {
             return false;
         }
         if (!verificarToken(TokenType.IDENTIFIER)) {
@@ -125,10 +119,10 @@ public class VerificadorEstruturas {
 
     }
 
-    public boolean verificarBoolean() {
+    public boolean verificarLogico() {
         int savedIndex = currentIndex;
 
-        if (!verificarTokenEspecifico(TokenType.KEYWORD, "boolean")) {
+        if (!verificarTokenEspecifico(TokenType.KEYWORD, "LOGICO")) {
             return false;
         }
         if (!verificarToken(TokenType.IDENTIFIER)) {
@@ -137,9 +131,8 @@ public class VerificadorEstruturas {
         if (!verificarTokenEspecifico(TokenType.OPERATOR, "=")) {
             return false;
         }
-        if (verificarTokenEspecifico(TokenType.IDENTIFIER, "false")
-                || verificarTokenEspecifico(TokenType.IDENTIFIER, "true")) {
-            return true;
+        if (!verificarToken(TokenType.BOOLEAN_LITERAL)) {
+            return false;
         }
         if (verificarTokenEspecifico(TokenType.PUNCTUATION, ";")) {
             return true;
@@ -149,10 +142,10 @@ public class VerificadorEstruturas {
 
     }
 
-    public boolean verificarIf() {
+    public boolean verificarSe() {
         int savedIndex = currentIndex;
 
-        if (verificarTokenEspecifico(TokenType.KEYWORD, "if") &&
+        if (verificarTokenEspecifico(TokenType.KEYWORD, "SE") &&
                 verificarTokenEspecifico(TokenType.PUNCTUATION, "(") &&
                 verificarToken(TokenType.IDENTIFIER) &&
                 verificarToken(TokenType.OPERATOR) &&
@@ -166,10 +159,10 @@ public class VerificadorEstruturas {
         return false;
     }
 
-    public boolean verificarElse() {
+    public boolean verificarSenao() {
         int savedIndex = currentIndex;
 
-        if (!verificarTokenEspecifico(TokenType.KEYWORD, "else")) {
+        if (!verificarTokenEspecifico(TokenType.KEYWORD, "SENAO")) {
             return false;
         }
         if (!verificarToken(TokenType.IDENTIFIER)) {
@@ -182,13 +175,13 @@ public class VerificadorEstruturas {
         return false;
     }
 
-    public boolean verificarFor() {
+    public boolean verificarPara() {
         int savedIndex = currentIndex;
 
-        if (!verificarTokenEspecifico(TokenType.KEYWORD, "for")) {
+        if (!verificarTokenEspecifico(TokenType.KEYWORD, "PARA")) {
             return false;
         }
-        if (!verificarTokenEspecifico(TokenType.KEYWORD, "int")) {
+        if (!verificarTokenEspecifico(TokenType.KEYWORD, "INTEIRO")) {
             return false;
         }
         if (!verificarToken(TokenType.IDENTIFIER)) {
@@ -238,14 +231,11 @@ public class VerificadorEstruturas {
         }
         currentIndex = savedIndex;
         return true;
-
     }
-    
-    
 
     public boolean verificaConta() {
         int savedIndex = currentIndex;
-        if (!verificarTokenEspecifico(TokenType.KEYWORD, "int")) {
+        if (!verificarTokenEspecifico(TokenType.KEYWORD, "INTEIRO")) {
             return false;
         }
         if (!verificarToken(TokenType.IDENTIFIER)) {
@@ -288,24 +278,6 @@ public class VerificadorEstruturas {
         }
         currentIndex = savedIndex;
         return false;
-    }
-
-    private boolean verificarBloco() {
-        while (currentIndex < tokens.size()) {
-            Token current = peekToken();
-            if (current == null) {
-                break;
-            }
-
-            if (current.getType() == TokenType.PUNCTUATION && current.getValue().equals("}")) {
-                break;
-            }
-
-            if (!verificarAtribuicao() && !verificarString()) {
-                break;
-            }
-        }
-        return true;
     }
 
     public boolean verificaPontuacao() {

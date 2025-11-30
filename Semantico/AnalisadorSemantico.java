@@ -1,7 +1,8 @@
 package Semantico;
 
-import Analisar.*;
 import java.util.List;
+
+import Lexico.*;
 
 public class AnalisadorSemantico {
     private List<Token> tokens;
@@ -21,16 +22,16 @@ public class AnalisadorSemantico {
 
         currentIndex = 0;
 
-        if (analisarDeclaracaoVariavelInt()) {
+        if (analisarDeclaracaoVariavelInteiro()) {
             return;
         }
-        if (analisarDeclaracaoVariavelString()) {
+        if (analisarDeclaracaoVariavelTexto()) {
             return;
         }
-        if (analisarDeclaracaoVariavelBoolean()) {
+        if (analisarDeclaracaoVariavelLogico()) {
             return;
         }
-        if (analisarIf()) {
+        if (analisarSe()) {
             return;
         }
         if (analisarAtribuicao()) {
@@ -71,7 +72,7 @@ public class AnalisadorSemantico {
         return tokens.get(currentIndex);
     }
 
-    private boolean analisarDeclaracaoVariavelInt() throws Exception {
+    private boolean analisarDeclaracaoVariavelInteiro() throws Exception {
         int savedIndex = currentIndex;
 
         if (!verificarTokenEspecifico(TokenType.KEYWORD, "INTEIRO")) {
@@ -102,7 +103,7 @@ public class AnalisadorSemantico {
         return false;
     }
 
-    private boolean analisarDeclaracaoVariavelString() throws Exception {
+    private boolean analisarDeclaracaoVariavelTexto() throws Exception {
         int savedIndex = currentIndex;
 
         if (!verificarTokenEspecifico(TokenType.KEYWORD, "TEXTO")) {
@@ -133,7 +134,7 @@ public class AnalisadorSemantico {
         return false;
     }
 
-    private boolean analisarDeclaracaoVariavelBoolean() throws Exception {
+    private boolean analisarDeclaracaoVariavelLogico() throws Exception {
         int savedIndex = currentIndex;
 
         if (!verificarTokenEspecifico(TokenType.KEYWORD, "LOGICO")) {
@@ -164,7 +165,7 @@ public class AnalisadorSemantico {
         return false;
     }
 
-    private boolean analisarIf() throws Exception {
+    private boolean analisarSe() throws Exception {
         int savedIndex = currentIndex;
 
         if (!verificarTokenEspecifico(TokenType.KEYWORD, "SE")) {
@@ -179,7 +180,7 @@ public class AnalisadorSemantico {
 
         String tipoCondicao = analisarExpressao();
         if (tipoCondicao == null || !tipoCondicao.equals("LOGICO")) {
-            throw new Exception("Condição do if deve ser do tipo boolean");
+            throw new Exception("Condição do SE deve ser do tipo LOGICO");
         }
 
         if (!verificarTokenEspecifico(TokenType.PUNCTUATION, ")")) {
@@ -258,12 +259,13 @@ public class AnalisadorSemantico {
 
         if (token.getType() == TokenType.LITERAL) {
             currentIndex++;
-            return consumirOperacaoNumerica("int");
+            return consumirOperacaoNumerica("INTEIRO");
         }
 
         if (token.getType() == TokenType.IDENTIFIER) {
             String nomeVariavel = token.getValue();
             currentIndex++;
+
             Simbolo simbolo = tabelaSimbolos.buscar(nomeVariavel);
             if (simbolo == null) {
                 throw new Exception("Variável '" + nomeVariavel + "' não declarada");
@@ -278,7 +280,7 @@ public class AnalisadorSemantico {
         return null;
     }
 
-    private String consumirOperacaoNumerica(String tipoBase) throws Exception {
+        private String consumirOperacaoNumerica(String tipoBase) throws Exception {
         if (peekToken() == null || peekToken().getType() != TokenType.OPERATOR) {
             return tipoBase;
         }
@@ -299,7 +301,7 @@ public class AnalisadorSemantico {
         String tipoDireita = null;
         if (prox.getType() == TokenType.LITERAL) {
             currentIndex++;
-            tipoDireita = "int";
+            tipoDireita = "INTEIRO";
         } else if (prox.getType() == TokenType.IDENTIFIER) {
             String nome = prox.getValue();
             currentIndex++;
@@ -320,7 +322,7 @@ public class AnalisadorSemantico {
         return "INTEIRO";
     }
 
-    private String consumirOperacaoComTipoBase(String tipoBase) throws Exception {
+        private String consumirOperacaoComTipoBase(String tipoBase) throws Exception {
         if (tipoBase.equals("INTEIRO")) {
             return consumirOperacaoNumerica("INTEIRO");
         }

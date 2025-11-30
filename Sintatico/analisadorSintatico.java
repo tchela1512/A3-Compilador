@@ -1,10 +1,11 @@
 package Sintatico;
 
-import Analisar.*;
 import Semantico.AnalisadorSemantico;
 import Semantico.TabelaSimbolos;
 import java.io.IOException;
 import java.util.List;
+
+import Lexico.*;
 
 public class analisadorSintatico {
     private LeitorArquivo leitorArquivo;
@@ -64,9 +65,4 @@ public class analisadorSintatico {
         }
     }
 
-    public static void main(String[] args) {
-        String arquivo = (args.length > 0) ? args[0] : "teste.txt";
-        analisadorSintatico parser = new analisadorSintatico(arquivo);
-        parser.analisar();
-    }
 }

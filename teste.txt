@@ -1,1 +1,8 @@
-boolean a = false;
+INTEIRO a = 10
+INTEIRO b = 15
+
+SE(a>b){
+    INTEIRO c = a - b
+}SENAO{
+    INTEIRO c = a + b
+}

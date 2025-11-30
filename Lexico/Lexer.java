@@ -1,4 +1,4 @@
-package Analisar;
+package Lexico;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,16 +42,17 @@ public class Lexer {
         }
 
         String[] tokenPatterns = {
-            "\\b(SE|SENAO|ENQUANTO|PARA|TEXTO|INTEIRO|LOGICO)\\b", // Keywords PT-BR
-            "\\b(VERDADEIRO|FALSO)\\b",                           // Boolean literals as keywords
-            "[a-zA-Z_][a-zA-Z0-9_]*",                                // Identifiers
-            "\\d+",                                                // Numeric literals
-            "[+\\-/*=<>!]",                                          // Operators
-            "[.,;(){}]",                                             // Punctuation
+            "\\b(SE|SENAO|ENQUANTO|PARA|TEXTO|INTEIRO|LOGICO)\\b",  // Palavras-chave
+            "\\b(VERDADEIRO|FALSO)\\b",                             // Literais booleanos
+            "[a-zA-Z_][a-zA-Z0-9_]*",                               // Identificadores
+            "\\d+",                                                 // Literais numéricos
+            "[+-/*=<>!]",                                           // Operadores
+            "[.,;(){}]",                                            // Pontuação
         };
 
         TokenType[] tokenTypes = {
             TokenType.KEYWORD,
+            TokenType.BOOLEAN_LITERAL,
             TokenType.IDENTIFIER,
             TokenType.LITERAL,
             TokenType.OPERATOR,
@@ -59,7 +60,7 @@ public class Lexer {
         };
 
         for (int i = 0; i < tokenPatterns.length; i++) {
-            Pattern pattern = Pattern.compile("^" + tokenPatterns[i], Pattern.CASE_INSENSITIVE);
+            Pattern pattern = Pattern.compile("^" + tokenPatterns[i]);
             Matcher matcher = pattern.matcher(input.substring(currentPosition));
 
             if (matcher.find()) {
